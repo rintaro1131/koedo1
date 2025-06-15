@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  viewer
+}
+
+enum Condition {
+  new
+  used
+  junk
+}
+
+enum Status {
+  in_stock
+  listed
+  sold
+  shipped
+  lost
+}
+
+model User {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role        Role
+  createdAt   DateTime     @default(now())
+
+  products     Product[]
+  labels       Label[]
+  productLogs  ProductLog[]
+}
+
+model Product {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku         String?    @unique
+  title       String
+  description String?
+  condition   Condition
+  buyPrice    Decimal?   @db.Decimal(10,2)
+  sellPrice   Decimal?   @db.Decimal(10,2)
+  status      Status     @default(in_stock)
+  boughtAt    DateTime?
+  soldAt      DateTime?
+  listedAt    DateTime?
+  imageUrls   String[]   @db.Text
+
+  createdById String
+  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  labels      Label[]
+  logs        ProductLog[]
+}
+
+model Label {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  pdfUrl      String
+  createdAt   DateTime @default(now())
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+}
+
+model ProductLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  field       String
+  oldValue    String?
+  newValue    String?
+  changedAt   DateTime @default(now())
+  changedById String
+  changedBy   User     @relation(fields: [changedById], references: [id])
+}
