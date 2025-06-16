@@ -1,5 +1,5 @@
 import { supabaseServer } from '@/lib/supabase-server'
-import ProductTable from '@/components/ProductTable'
+import DashboardClient from '@/components/DashboardClient'
 import { redirect } from 'next/navigation'
 import prisma from '@/lib/prisma'
 
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-semibold">Inventory Dashboard</h1>
-      <ProductTable initialData={products} />
+      <DashboardClient initialData={products} />
     </div>
   )
 }
